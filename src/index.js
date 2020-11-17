@@ -59,7 +59,7 @@ server.use(express.json()); // to support JSON-encoded bodies
 server.use(express.urlencoded({ extended: true })); // to support URL-encoded bodies
 
 server.get('/',(req,res)=>{
-  res.render("Hello Friends")
+  res.send("Hello Friends")
 })
 
 // 1. Register a user
