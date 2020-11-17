@@ -13,7 +13,7 @@ const {
 } = require('./tokens.js');
 const { isAuth } = require('./isAuth.js');
 
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/jwt', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect('mongodb+srv://Atharva123:UBaotuVVfn8bhKvL@c1.u1d0p.mongodb.net/jwt?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true });
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
