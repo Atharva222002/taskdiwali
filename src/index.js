@@ -11,7 +11,6 @@ const {
   sendRefreshToken,
   sendAccessToken,
 } = require('./tokens.js');
-const { fakeDB } = require('./fakeDB.js');
 const { isAuth } = require('./isAuth.js');
 
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/jwt', { useNewUrlParser: true, useUnifiedTopology: true });
@@ -58,6 +57,10 @@ server.use(cookieParser());
 // Needed to be able to read body data
 server.use(express.json()); // to support JSON-encoded bodies
 server.use(express.urlencoded({ extended: true })); // to support URL-encoded bodies
+
+server.get('/',(req,res)=>{
+  res.render("Hello Friends")
+})
 
 // 1. Register a user
 server.post('/register', async (req, res) => {
@@ -152,11 +155,52 @@ server.post('/follow', async (req, res) => {
               user.followers.Number_of_followers = user.followers.Number_of_followers + 1
               user.followers.list.push(user1.email)
               user.save()
+              res.send("Followed")
+              user1.following.list.push(email)
+              user1.following.Number_of_following += 1
+              user1.save()
             }
           });
-          user1.following.list.push(email)
-          user1.following.Number_of_following += 1
-          user1.save()
+        }
+      });
+    }
+  } catch (err) {
+    res.send({
+      error: `${err.message}`,
+    });
+  }
+});
+
+server.post('/unfollow', async (req, res) => {
+  try {
+    const userId = isAuth(req);
+    if (userId !== null) {
+      const finduser = user.where({ _id: userId });
+      finduser.findOne(function (err, user1) {
+        if (err) console.log("Error");
+        if (user1) {
+          const { email } = req.body
+          const user2 = user.where({ email: email });
+          user2.findOne(function (err, user) {
+            if (err) console.log("Error");
+            if (user == null) res.send("User does not exist")
+            if (user) {
+              user.followers.Number_of_followers = user.followers.Number_of_followers - 1
+              // console.log(user)
+              const index = user.followers.list.indexOf(user1.email);
+              if (index > -1) {
+                user.followers.list.splice(index, 1);
+              }
+              user.save()
+              res.send("Unfollowed")
+              const index1 = user1.following.list.indexOf(email);
+              if (index1 > -1) {
+                user1.following.list.splice(index1, 1);
+              }
+              user1.following.Number_of_following -= 1
+              user1.save()
+            }
+          });
         }
       });
     }
@@ -216,15 +260,16 @@ server.post('/feed', async (req, res) => {
               if (err) console.log("Error");
               if (user9) {
                 const user4 = usertweet.where({ _id: user9._id });
-                user4.findOne(function (err, user5) {
+                user4.findOne(function (err, user10) {
                   if (err) console.log("Error");
-                  if (user5) {
-                    const user8 = user.where({ _id: user5._id });
+                  if (user10) {
+                    // console.log(user10)
+                    const user8 = user.where({ _id: user10._id });
                     user8.findOne(function (err, user) {
                       if (err) console.log("Error");
                       if (user) {
                         feed.push(user.email)
-                        feed.push(user5.tweet)
+                        feed.push(user10.tweet)
                         console.log(feed)
                       }
                     })
