@@ -62,6 +62,10 @@ server.get('/',(req,res)=>{
   res.send("Hello Friends")
 })
 
+server.get('/register',(req,res)=>{
+  res.send("on register page")
+})
+
 // 1. Register a user
 server.post('/register', async (req, res) => {
   const { email, password } = req.body;
